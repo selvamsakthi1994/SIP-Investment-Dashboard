@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP Investment Dashboard - 15 Year Plan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .subvalue {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .input-field input, .input-field select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-field input:focus, .input-field select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .transaction-log {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-item:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .fund-row {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checklist li:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .checklist li.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+            border-left-color: #28a745;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #495057;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 SIP Investment Dashboard</h1>
+            <p>Complete 15-Year Financial Plan Tracker</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('portfolio')">Portfolio Tracker</button>
+            <button class="nav-tab" onclick="switchTab('projections')">Projections</button>
+            <button class="nav-tab" onclick="switchTab('swp')">SWP Calculator</button>
+            <button class="nav-tab" onclick="switchTab('transactions')">Transactions</button>
+            <button class="nav-tab" onclick="switchTab('rebalance')">Rebalancing</button>
+            <button class="nav-tab" onclick="switchTab('checklist')">Action Checklist</button>
+            <button class="nav-tab" onclick="switchTab('export')">Export Data</button>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Invested</h3>
+                    <div class="value" id="totalInvested">₹0</div>
+                    <div class="subvalue">Monthly: ₹35,000</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Current Value</h3>
+                    <div class="value" id="currentValue">₹0</div>
+                    <div class="subvalue" id="returns">Returns: ₹0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>XIRR</h3>
+                    <div class="value" id="xirr">0%</div>
+                    <div class="subvalue">vs Target: 15.2%</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Target Progress</h3>
+                    <div class="value" id="progress">0%</div>
+                    <div class="subvalue">Goal: ₹2.12 Cr</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="section-title">Investment Journey</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="journeyProgress" style="width: 0%">0 months / 180</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="section-title">Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="switchTab('transactions')">➕ Add Transaction</button>
+                    <button class="btn btn-success" onclick="calculatePortfolio()">🔄 Calculate Portfolio</button>
+                    <button class="btn btn-info" onclick="switchTab('projections')">📈 View Projections</button>
+                    <button class="btn btn-success" onclick="exportToExcel()">📥 Download Excel</button>
+                </div>
+            </div>
+
+            <div id="alertsContainer"></div>
+        </div>
+
+        <!-- PORTFOLIO TRACKER TAB -->
+        <div id="portfolio" class="tab-content">
+            <h2 class="section-title">Current Portfolio Holdings</h2>
+            
+            <div class="input-section">
+                <h3>Update Current NAVs & Units</h3>
+                <div id="portfolioInputs"></div>
+                <button class="btn btn-primary" onclick="updatePortfolio()">Update Portfolio</button>
+            </div>
+
+            <table id="portfolioTable">
+                <thead>
+                    <tr>
+                        <th>Fund Name</th>
+                        <th>Monthly SIP</th>
+                        <th>Target %</th>
+                        <th>Current Units</th>
+                        <th>Current NAV</th>
+                        <th>Current Value</th>
+                        <th>Invested</th>
+                        <th>Returns</th>
+                        <th>Returns %</th>
+                    </tr>
+                </thead>
+                <tbody id="portfolioBody"></tbody>
+            </table>
+        </div>
+
+        <!-- PROJECTIONS TAB -->
+        <div id="projections" class="tab-content">
+            <h2 class="section-title">15-Year Corpus Projections</h2>
+            
+            <div class="input-section">
+                <h3>Projection Assumptions</h3>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>Investment Period (Years)</label>
+                        <input type="number" id="projYears" value="15" min="1" max="30">
+                    </div>
+                    <div class="input-field">
+                        <label>Monthly SIP Amount (₹)</label>
+                        <input type="number" id="projSIP" value="35000" step="1000">
+                    </div>
+                    <div class="input-field">
+                        <label>Expected CAGR (%)</label>
+                        <input type="number" id="projCAGR" value="15.2" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label>SIP Step-up (%)</label>
+                        <input type="number" id="projStepup" value="0" step="5">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="calculateProjections()">Calculate Projections</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Investment</h3>
+                    <div class="value" id="projTotalInv">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Expected Corpus</h3>
+                    <div class="value" id="projCorpus">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Returns</h3>
+                    <div class="value" id="projReturns">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Returns Multiple</h3>
+                    <div class="value" id="projMultiple">0x</div>
+                </div>
+            </div>
+
+            <table id="projectionTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Age</th>
+                        <th>Monthly SIP</th>
+                        <th>Total Invested</th>
+                        <th>Corpus Value</th>
+                        <th>Returns</th>
+                    </tr>
+                </thead>
+                <tbody id="projectionBody"></tbody>
+            </table>
+        </div>
+
+        <!-- SWP CALCULATOR TAB -->
+        <div id="swp" class="tab-content">
+            <h2 class="section-title">SWP Sustainability Calculator</h2>
+            
+            <div class="input-section">
+                <h3>SWP Parameters</h3>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>Starting Corpus (₹)</label>
+                        <input type="number" id="swpCorpus" value="21203248" step="100000">
+                    </div>
+                    <div class="input-field">
+                        <label>Monthly Withdrawal (₹)</label>
+                        <input type="number" id="swpAmount" value="36034" step="1000">
+                    </div>
+                    <div class="input-field">
+                        <label>Annual Returns (%)</label>
+                        <input type="number" id="swpReturns" value="12" step="0.5">
+                    </div>
+                    <div class="input-field">
+                        <label>Annual Increment (%)</label>
+                        <input type="number" id="swpIncrement" value="6" step="1">
+                    </div>
+                    <div class="input-field">
+                        <label>Years to Calculate</label>
+                        <input type="number" id="swpYears" value="50" min="10" max="100">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="calculateSWP()">Calculate SWP Sustainability</button>
+            </div>
+
+            <div id="swpResult" style="margin-top: 20px;"></div>
+
+            <table id="swpTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Age</th>
+                        <th>Monthly Withdrawal</th>
+                        <th>Annual Withdrawal</th>
+                        <th>Starting Corpus</th>
+                        <th>Ending Corpus</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="swpBody"></tbody>
+            </table>
+        </div>
+
+        <!-- TRANSACTIONS TAB -->
+        <div id="transactions" class="tab-content">
+            <h2 class="section-title">Transaction Management</h2>
+            
+            <div class="input-section">
+                <h3>Add New Transaction</h3>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>Transaction Type</label>
+                        <select id="txnType">
+                            <option value="SIP">SIP Investment</option>
+                            <option value="Lumpsum">Lumpsum Investment</option>
+                            <option value="Redemption">Redemption</option>
+                        </select>
+                    </div>
+                    <div class="input-field">
+                        <label>Fund</label>
+                        <select id="txnFund"></select>
+                    </div>
+                    <div class="input-field">
+                        <label>Date</label>
+                        <input type="date" id="txnDate">
+                    </div>
+                    <div class="input-field">
+                        <label>Amount (₹)</label>
+                        <input type="number" id="txnAmount" step="100">
+                    </div>
+                    <div class="input-field">
+                        <label>NAV</label>
+                        <input type="number" id="txnNAV" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Units</label>
+                        <input type="number" id="txnUnits" step="0.001">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+                <button class="btn btn-info" onclick="clearTransactionForm()" style="margin-left: 10px;">Clear Form</button>
+            </div>
+
+            <div class="transaction-log" id="transactionLog"></div>
+        </div>
+
+        <!-- REBALANCING TAB -->
+        <div id="rebalance" class="tab-content">
+            <h2 class="section-title">Portfolio Rebalancing</h2>
+            
+            <div class="chart-container">
+                <h3>Current vs Target Allocation</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fund</th>
+                            <th>Target %</th>
+                            <th>Current %</th>
+                            <th>Deviation</th>
+                            <th>Action Required</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rebalanceBody"></tbody>
+                </table>
+            </div>
+
+            <div id="rebalanceRecommendations"></div>
+        </div>
+
+        <!-- CHECKLIST TAB -->
+        <div id="checklist" class="tab-content">
+            <h2 class="section-title">Action Checklist</h2>
+            
+            <div class="chart-container">
+                <h3>✅ Immediate Actions (This Week)</h3>
+                <ul class="checklist" id="checklistImmediate"></ul>
+            </div>
+
+            <div class="chart-container">
+                <h3>📅 Month 1-3 Actions</h3>
+                <ul class="checklist" id="checklistMonth13"></ul>
+            </div>
+
+            <div class="chart-container">
+                <h3>🔄 Ongoing Actions (Annual)</h3>
+                <ul class="checklist" id="checklistOngoing"></ul>
+            </div>
+
+            <div class="chart-container">
+                <h3>🎯 Year 12-15 Actions</h3>
+                <ul class="checklist" id="checklistYear12"></ul>
+            </div>
+        </div>
+
+        <!-- EXPORT TAB -->
+        <div id="export" class="tab-content">
+            <h2 class="section-title">Export & Backup</h2>
+            
+            <div class="chart-container">
+                <h3>Download Options</h3>
+                <p>Export your complete investment data to Excel for offline tracking and analysis.</p>
+                
+                <div class="action-buttons" style="margin-top: 20px;">
+                    <button class="btn btn-success" onclick="exportToExcel()">
+                        📥 Download Complete Excel Dashboard
+                    </button>
+                    <button class="btn btn-primary" onclick="exportPortfolio()">
+                        📊 Export Portfolio Only
+                    </button>
+                    <button class="btn btn-info" onclick="exportTransactions()">
+                        📝 Export Transactions
+                    </button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Backup & Restore</h3>
+                <p>Save your data locally and restore it anytime.</p>
+                
+                <div class="action-buttons" style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="backupData()">
+                        💾 Backup Data (JSON)
+                    </button>
+                    <button class="btn btn-info" onclick="document.getElementById('restoreFile').click()">
+                        📂 Restore Data
+                    </button>
+                    <input type="file" id="restoreFile" style="display: none;" accept=".json" onchange="restoreData(event)">
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>📌 Note:</strong> Your data is stored in your browser's memory. Regular backups are recommended to prevent data loss.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fund Configuration
+        const funds = [
+            { name: 'Parag Parikh Flexi Cap', category: 'Large Cap', targetAlloc: 33.6, monthlySIP: 11750, expectedCAGR: 18.5 },
+            { name: 'Motilal Oswal Midcap', category: 'Mid Cap', targetAlloc: 17.9, monthlySIP: 6250, expectedCAGR: 20.2 },
+            { name: 'Nippon Small Cap', category: 'Small Cap', targetAlloc: 10.7, monthlySIP: 3750, expectedCAGR: 21.8 },
+            { name: 'ICICI Corp Bond', category: 'Debt', targetAlloc: 16.4, monthlySIP: 5750, expectedCAGR: 8.2 },
+            { name: 'SBI Gold', category: 'Gold', targetAlloc: 10.0, monthlySIP: 3500, expectedCAGR: 10.5 },
+            { name: 'ICICI Equity & Debt', category: 'Hybrid', targetAlloc: 11.4, monthlySIP: 4000, expectedCAGR: 13.5 }
+        ];
+
+        // Initialize data storage
+        let portfolioData = {};
+        let transactions = [];
+        let checklistItems = {
+            immediate: [],
+            month13: [],
+            ongoing: [],
+            year12: []
+        };
+
+        // Initialize portfolio data
+        funds.forEach(fund => {
+            portfolioData[fund.name] = {
+                units: 0,
+                currentNAV: 100,
+                invested: 0,
+                currentValue: 0
+            };
+        });
+
+        // Load data from storage
+        function loadData() {
+            const saved = localStorage.getItem('sipDashboardData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                portfolioData = data.portfolio || portfolioData;
+                transactions = data.transactions || [];
+                checklistItems = data.checklist || checklistItems;
+            }
+            initializeChecklist();
+        }
+
+        // Save data to storage
+        function saveData() {
+            const data = {
+                portfolio: portfolioData,
+                transactions: transactions,
+                checklist: checklistItems,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('sipDashboardData', JSON.stringify(data));
+        }
+
+        // Initialize checklist
+        function initializeChecklist() {
+            if (checklistItems.immediate.length === 0) {
+                checklistItems.immediate = [
+                    'Open Coin/Zerodha account',
+                    'Complete KYC verification',
+                    'Set up ₹38,500 e-mandate',
+                    'Transfer first month SIP amount',
+                    'Set calendar reminder for monthly tracking'
+                ];
+                
+                checklistItems.month13 = [
+                    'Start SIPs in all 6 funds',
+                    'Verify first SIP execution',
+                    'Download CAS statement',
+                    'Set up portfolio tracking dashboard',
+                    'Save all folio numbers'
+                ];
+                
+                checklistItems.ongoing = [
+                    'Annual review every March',
+                    'Rebalance if drift >5%',
+                    'Monitor fund manager changes',
+                    'Harvest LTCG for tax optimization',
+                    'Review goals based on life changes'
+                ];
+                
+                checklistItems.year12 = [
+                    'Begin equity-to-debt shift (10%)',
+                    'Review education timeline',
+                    'Assess retirement corpus vs target',
+                    'Set up SWP infrastructure',
+                    'Update nominee details'
+                ];
+                saveData();
+            }
+            renderChecklists();
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'portfolio') renderPortfolioInputs();
+            if (tabName === 'transactions') renderTransactionLog();
+            if (tabName === 'rebalance') calculateRebalancing();
+        }
+
+        // Calculate portfolio
+        function calculatePortfolio() {
+            let totalInvested = 0;
+            let totalValue = 0;
+            
+            funds.forEach(fund => {
+                const data = portfolioData[fund.name];
+                totalInvested += data.invested;
+                totalValue += data.currentValue;
+            });
+            
+            const returns = totalValue - totalInvested;
+            const returnsPercent = totalInvested > 0 ? (returns / totalInvested * 100) : 0;
+            
+            document.getElementById('totalInvested').textContent = formatCurrency(totalInvested);
+            document.getElementById('currentValue').textContent = formatCurrency(totalValue);
+            document.getElementById('returns').textContent = `Returns: ${formatCurrency(returns)}`;
+            document.getElementById('xirr').textContent = returnsPercent.toFixed(2) + '%';
+            
+            const targetCorpus = 21203248;
+            const progress = (totalValue / targetCorpus * 100).toFixed(1);
+            document.getElementById('progress').textContent = progress + '%';
+            
+            // Update journey progress (based on months)
+            const monthsElapsed = Math.min(transactions.filter(t => t.type === 'SIP').length, 180);
+            const journeyProgress = (monthsElapsed / 180 * 100).toFixed(1);
+            const progressBar = document.getElementById('journeyProgress');
+            progressBar.style.width = journeyProgress + '%';
+            progressBar.textContent = `${monthsElapsed} months / 180`;
+            
+            renderPortfolioTable();
+            checkAlerts();
+        }
+
+        // Render portfolio table
+        function renderPortfolioTable() {
+            const tbody = document.getElementById('portfolioBody');
+            tbody.innerHTML = '';
+            
+            funds.forEach(fund => {
+                const data = portfolioData[fund.name];
+                const returns = data.currentValue - data.invested;
+                const returnsPercent = data.invested > 0 ? (returns / data.invested * 100) : 0;
+                const currentAlloc = data.currentValue / getTotalValue() * 100;
+                
+                const row = `
+                    <tr>
+                        <td><strong>${fund.name}</strong><br><small>${fund.category}</small></td>
+                        <td>₹${fund.monthlySIP.toLocaleString()}</td>
+                        <td>${fund.targetAlloc.toFixed(1)}%</td>
+                        <td>${data.units.toFixed(3)}</td>
+                        <td>₹${data.currentNAV.toFixed(2)}</td>
+                        <td><strong>₹${data.currentValue.toLocaleString()}</strong></td>
+                        <td>₹${data.invested.toLocaleString()}</td>
+                        <td style="color: ${returns >= 0 ? 'green' : 'red'}">₹${returns.toLocaleString()}</td>
+                        <td style="color: ${returnsPercent >= 0 ? 'green' : 'red'}"><strong>${returnsPercent.toFixed(2)}%</strong></td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            
+            // Add total row
+            const totalInvested = funds.reduce((sum, f) => sum + portfolioData[f.name].invested, 0);
+            const totalValue = funds.reduce((sum, f) => sum + portfolioData[f.name].currentValue, 0);
+            const totalReturns = totalValue - totalInvested;
+            const totalReturnsPercent = totalInvested > 0 ? (totalReturns / totalInvested * 100) : 0;
+            
+            tbody.innerHTML += `
+                <tr style="background: #f8f9fa; font-weight: bold;">
+                    <td colspan="5">TOTAL PORTFOLIO</td>
+                    <td>₹${totalValue.toLocaleString()}</td>
+                    <td>₹${totalInvested.toLocaleString()}</td>
+                    <td style="color: ${totalReturns >= 0 ? 'green' : 'red'}">₹${totalReturns.toLocaleString()}</td>
+                    <td style="color: ${totalReturnsPercent >= 0 ? 'green' : 'red'}">${totalReturnsPercent.toFixed(2)}%</td>
+                </tr>
+            `;
+        }
+
+        // Render portfolio inputs
+        function renderPortfolioInputs() {
+            const container = document.getElementById('portfolioInputs');
+            container.innerHTML = '';
+            
+            funds.forEach(fund => {
+                const data = portfolioData[fund.name];
+                const html = `
+                    <div class="fund-row">
+                        <h4>${fund.name}</h4>
+                        <div class="input-group">
+                            <div class="input-field">
+                                <label>Current Units</label>
+                                <input type="number" id="units_${fund.name}" value="${data.units}" step="0.001">
+                            </div>
+                            <div class="input-field">
+                                <label>Current NAV</label>
+                                <input type="number" id="nav_${fund.name}" value="${data.currentNAV}" step="0.01">
+                            </div>
+                            <div class="input-field">
+                                <label>Total Invested</label>
+                                <input type="number" id="invested_${fund.name}" value="${data.invested}" step="100">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // Update portfolio
+        function updatePortfolio() {
+            funds.forEach(fund => {
+                const units = parseFloat(document.getElementById(`units_${fund.name}`).value) || 0;
+                const nav = parseFloat(document.getElementById(`nav_${fund.name}`).value) || 100;
+                const invested = parseFloat(document.getElementById(`invested_${fund.name}`).value) || 0;
+                
+                portfolioData[fund.name] = {
+                    units: units,
+                    currentNAV: nav,
+                    invested: invested,
+                    currentValue: units * nav
+                };
+            });
+            
+            saveData();
+            calculatePortfolio();
+            alert('Portfolio updated successfully!');
+        }
+
+        // Calculate projections
+        function calculateProjections() {
+            const years = parseInt(document.getElementById('projYears').value);
+            const monthlySIP = parseFloat(document.getElementById('projSIP').value);
+            const cagr = parseFloat(document.getElementById('projCAGR').value) / 100;
+            const stepup = parseFloat(document.getElementById('projStepup').value) / 100;
+            
+            const monthlyRate = Math.pow(1 + cagr, 1/12) - 1;
+            
+            let totalInvested = 0;
+            let corpus = 0;
+            let currentSIP = monthlySIP;
+            
+            const tbody = document.getElementById('projectionBody');
+            tbody.innerHTML = '';
+            
+            for (let year = 1; year <= years; year++) {
+                const startCorpus = corpus;
+                
+                for (let month = 1; month <= 12; month++) {
+                    corpus = corpus * (1 + monthlyRate) + currentSIP;
+                    totalInvested += currentSIP;
+                }
+                
+                const returns = corpus - totalInvested;
+                const age = year - 1; // Assuming child starts at age 0
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${year}</td>
+                        <td>${age}</td>
+                        <td>₹${currentSIP.toLocaleString()}</td>
+                        <td>₹${totalInvested.toLocaleString()}</td>
+                        <td><strong>₹${corpus.toLocaleString()}</strong></td>
+                        <td style="color: green">₹${returns.toLocaleString()}</td>
+                    </tr>
+                `;
+                
+                currentSIP = currentSIP * (1 + stepup);
+            }
+            
+            document.getElementById('projTotalInv').textContent = formatCurrency(totalInvested);
+            document.getElementById('projCorpus').textContent = formatCurrency(corpus);
+            document.getElementById('projReturns').textContent = formatCurrency(corpus - totalInvested);
+            document.getElementById('projMultiple').textContent = (corpus / totalInvested).toFixed(2) + 'x';
+        }
+
+        // Calculate SWP
+        function calculateSWP() {
+            let corpus = parseFloat(document.getElementById('swpCorpus').value);
+            const monthlyWithdrawal = parseFloat(document.getElementById('swpAmount').value);
+            const annualReturns = parseFloat(document.getElementById('swpReturns').value) / 100;
+            const annualIncrement = parseFloat(document.getElementById('swpIncrement').value) / 100;
+            const years = parseInt(document.getElementById('swpYears').value);
+            
+            const monthlyRate = Math.pow(1 + annualReturns, 1/12) - 1;
+            
+            let currentWithdrawal = monthlyWithdrawal;
+            let depletionYear = null;
+            
+            const tbody = document.getElementById('swpBody');
+            tbody.innerHTML = '';
+            
+            for (let year = 1; year <= years; year++) {
+                const startCorpus = corpus;
+                let annualWithdrawal = 0;
+                
+                for (let month = 1; month <= 12; month++) {
+                    if (corpus > 0) {
+                        corpus = corpus * (1 + monthlyRate) - currentWithdrawal;
+                        annualWithdrawal += currentWithdrawal;
+                        
+                        if (corpus < 0) {
+                            corpus = 0;
+                            if (!depletionYear) depletionYear = year;
+                        }
+                    }
+                }
+                
+                const age = 15 + year - 1;
+                let status = '';
+                let statusColor = '';
+                
+                if (corpus === 0) {
+                    status = '❌ Depleted';
+                    statusColor = 'red';
+                } else if (corpus < startCorpus) {
+                    status = '⚠️ Declining';
+                    statusColor = 'orange';
+                } else {
+                    status = '✅ Growing';
+                    statusColor = 'green';
+                }
+                
+                // Show only key years
+                if (year === 1 || year % 5 === 0 || corpus === 0 || year === years) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${2040 + year - 1}</td>
+                            <td>${age}</td>
+                            <td>₹${currentWithdrawal.toLocaleString()}</td>
+                            <td>₹${annualWithdrawal.toLocaleString()}</td>
+                            <td>₹${startCorpus.toLocaleString()}</td>
+                            <td><strong>₹${corpus.toLocaleString()}</strong></td>
+                            <td style="color: ${statusColor}"><strong>${status}</strong></td>
+                        </tr>
+                    `;
+                }
+                
+                if (corpus === 0) break;
+                
+                currentWithdrawal = currentWithdrawal * (1 + annualIncrement);
+            }
+            
+            // Display result
+            const resultDiv = document.getElementById('swpResult');
+            if (depletionYear) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Corpus Depletion:</strong> Your corpus will be depleted in <strong>Year ${depletionYear}</strong> (Age ${15 + depletionYear - 1}). 
+                        Total sustainability: <strong>${depletionYear} years</strong>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✅ Perpetual Sustainability:</strong> Your corpus will last <strong>indefinitely</strong> under these assumptions. 
+                        The corpus continues to grow even with withdrawals.
+                    </div>
+                `;
+            }
+        }
+
+        // Add transaction
+        function addTransaction() {
+            const type = document.getElementById('txnType').value;
+            const fund = document.getElementById('txnFund').value;
+            const date = document.getElementById('txnDate').value;
+            const amount = parseFloat(document.getElementById('txnAmount').value);
+            const nav = parseFloat(document.getElementById('txnNAV').value);
+            const units = parseFloat(document.getElementById('txnUnits').value);
+            
+            if (!fund || !date || !amount || !nav || !units) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const transaction = {
+                id: Date.now(),
+                type: type,
+                fund: fund,
+                date: date,
+                amount: amount,
+                nav: nav,
+                units: units,
+                timestamp: new Date().toISOString()
+            };
+            
+            transactions.push(transaction);
+            
+            // Update portfolio data
+            const fundData = portfolioData[fund];
+            if (type === 'SIP' || type === 'Lumpsum') {
+                fundData.units += units;
+                fundData.invested += amount;
+            } else if (type === 'Redemption') {
+                fundData.units -= units;
+                fundData.invested -= amount;
+            }
+            fundData.currentValue = fundData.units * fundData.currentNAV;
+            
+            saveData();
+            renderTransactionLog();
+            calculatePortfolio();
+            
+            // Clear form
+            document.getElementById('txnAmount').value = '';
+            document.getElementById('txnNAV').value = '';
+            document.getElementById('txnUnits').value = '';
+            
+            alert('Transaction added successfully!');
+        }
+
+        // Render transaction log
+        function renderTransactionLog() {
+            const container = document.getElementById('transactionLog');
+            container.innerHTML = '';
+            
+            // Populate fund dropdown
+            const fundSelect = document.getElementById('txnFund');
+            if (fundSelect.options.length === 0) {
+                funds.forEach(fund => {
+                    const option = document.createElement('option');
+                    option.value = fund.name;
+                    option.textContent = fund.name;
+                    fundSelect.appendChild(option);
+                });
+            }
+            
+            // Set default date to today
+            const dateInput = document.getElementById('txnDate');
+            if (!dateInput.value) {
+                dateInput.valueAsDate = new Date();
+            }
+            
+            if (transactions.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px; color: #6c757d;">No transactions recorded yet.</p>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sorted.forEach(txn => {
+                const badgeClass = txn.type === 'SIP' || txn.type === 'Lumpsum' ? 'badge-success' : 'badge-danger';
+                const html = `
+                    <div class="transaction-item">
+                        <div>
+                            <strong>${txn.fund}</strong><br>
+                            <small>${new Date(txn.date).toLocaleDateString()} • ${txn.units.toFixed(3)} units @ ₹${txn.nav.toFixed(2)}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="badge ${badgeClass}">${txn.type}</div>
+                            <div style="margin-top: 5px;"><strong>₹${txn.amount.toLocaleString()}</strong></div>
+                            <div style="margin-top: 8px;">
+                                <button class="btn-icon" onclick="editTransaction(${txn.id})" title="Edit">✏️</button>
+                                <button class="btn-icon" onclick="deleteTransaction(${txn.id})" title="Delete" style="margin-left: 5px;">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // Edit transaction
+        function editTransaction(txnId) {
+            const txn = transactions.find(t => t.id === txnId);
+            if (!txn) return;
+            
+            // Populate form with transaction data
+            document.getElementById('txnType').value = txn.type;
+            document.getElementById('txnFund').value = txn.fund;
+            document.getElementById('txnDate').value = txn.date;
+            document.getElementById('txnAmount').value = txn.amount;
+            document.getElementById('txnNAV').value = txn.nav;
+            document.getElementById('txnUnits').value = txn.units;
+            
+            // Change button to update mode
+            const addBtn = document.querySelector('#transactions .btn-primary');
+            addBtn.textContent = 'Update Transaction';
+            addBtn.onclick = function() { updateTransaction(txnId); };
+            
+            // Scroll to form
+            document.getElementById('txnType').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Update transaction
+        function updateTransaction(txnId) {
+            const txnIndex = transactions.findIndex(t => t.id === txnId);
+            if (txnIndex === -1) return;
+            
+            const oldTxn = transactions[txnIndex];
+            
+            // Reverse old transaction effects
+            const oldFundData = portfolioData[oldTxn.fund];
+            if (oldTxn.type === 'SIP' || oldTxn.type === 'Lumpsum') {
+                oldFundData.units -= oldTxn.units;
+                oldFundData.invested -= oldTxn.amount;
+            } else if (oldTxn.type === 'Redemption') {
+                oldFundData.units += oldTxn.units;
+                oldFundData.invested += oldTxn.amount;
+            }
+            
+            // Get new values
+            const type = document.getElementById('txnType').value;
+            const fund = document.getElementById('txnFund').value;
+            const date = document.getElementById('txnDate').value;
+            const amount = parseFloat(document.getElementById('txnAmount').value);
+            const nav = parseFloat(document.getElementById('txnNAV').value);
+            const units = parseFloat(document.getElementById('txnUnits').value);
+            
+            if (!fund || !date || !amount || !nav || !units) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            // Update transaction
+            transactions[txnIndex] = {
+                id: txnId,
+                type: type,
+                fund: fund,
+                date: date,
+                amount: amount,
+                nav: nav,
+                units: units,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Apply new transaction effects
+            const fundData = portfolioData[fund];
+            if (type === 'SIP' || type === 'Lumpsum') {
+                fundData.units += units;
+                fundData.invested += amount;
+            } else if (type === 'Redemption') {
+                fundData.units -= units;
+                fundData.invested -= amount;
+            }
+            fundData.currentValue = fundData.units * fundData.currentNAV;
+            
+            saveData();
+            renderTransactionLog();
+            calculatePortfolio();
+            
+            // Reset form
+            clearTransactionForm();
+            
+            alert('Transaction updated successfully!');
+        }
+
+        // Delete transaction
+        function deleteTransaction(txnId) {
+            if (!confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+                return;
+            }
+            
+            const txnIndex = transactions.findIndex(t => t.id === txnId);
+            if (txnIndex === -1) return;
+            
+            const txn = transactions[txnIndex];
+            
+            // Reverse transaction effects
+            const fundData = portfolioData[txn.fund];
+            if (txn.type === 'SIP' || txn.type === 'Lumpsum') {
+                fundData.units -= txn.units;
+                fundData.invested -= txn.amount;
+            } else if (txn.type === 'Redemption') {
+                fundData.units += txn.units;
+                fundData.invested += txn.amount;
+            }
+            fundData.currentValue = fundData.units * fundData.currentNAV;
+            
+            // Remove transaction
+            transactions.splice(txnIndex, 1);
+            
+            saveData();
+            renderTransactionLog();
+            calculatePortfolio();
+            
+            alert('Transaction deleted successfully!');
+        }
+
+        // Clear transaction form
+        function clearTransactionForm() {
+            document.getElementById('txnAmount').value = '';
+            document.getElementById('txnNAV').value = '';
+            document.getElementById('txnUnits').value = '';
+            document.getElementById('txnDate').valueAsDate = new Date();
+            
+            // Reset button to add mode
+            const addBtn = document.querySelector('#transactions .btn-primary');
+            addBtn.textContent = 'Add Transaction';
+            addBtn.onclick = addTransaction;
+        }
+
+        // Calculate rebalancing
+        function calculateRebalancing() {
+            const tbody = document.getElementById('rebalanceBody');
+            tbody.innerHTML = '';
+            
+            const totalValue = getTotalValue();
+            const recommendations = [];
+            
+            funds.forEach(fund => {
+                const data = portfolioData[fund.name];
+                const currentAlloc = totalValue > 0 ? (data.currentValue / totalValue * 100) : 0;
+                const deviation = currentAlloc - fund.targetAlloc;
+                
+                let action = '';
+                let actionColor = '';
+                
+                if (Math.abs(deviation) > 5) {
+                    if (deviation > 0) {
+                        action = `⚠️ OVERWEIGHT - Pause SIP for 1-2 months`;
+                        actionColor = 'orange';
+                        recommendations.push(`<strong>${fund.name}</strong>: Overweight by ${Math.abs(deviation).toFixed(1)}%. Pause SIP temporarily.`);
+                    } else {
+                        action = `⚠️ UNDERWEIGHT - Increase SIP allocation`;
+                        actionColor = 'orange';
+                        recommendations.push(`<strong>${fund.name}</strong>: Underweight by ${Math.abs(deviation).toFixed(1)}%. Increase SIP allocation.`);
+                    }
+                } else if (Math.abs(deviation) > 3) {
+                    action = '⚡ Minor deviation - Monitor';
+                    actionColor = 'blue';
+                } else {
+                    action = '✅ Within target range';
+                    actionColor = 'green';
+                }
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${fund.name}</strong></td>
+                        <td>${fund.targetAlloc.toFixed(1)}%</td>
+                        <td><strong>${currentAlloc.toFixed(1)}%</strong></td>
+                        <td style="color: ${Math.abs(deviation) > 5 ? 'red' : Math.abs(deviation) > 3 ? 'orange' : 'green'}">
+                            <strong>${deviation > 0 ? '+' : ''}${deviation.toFixed(1)}%</strong>
+                        </td>
+                        <td style="color: ${actionColor}">${action}</td>
+                    </tr>
+                `;
+            });
+            
+            // Display recommendations
+            const recDiv = document.getElementById('rebalanceRecommendations');
+            if (recommendations.length > 0) {
+                let html = '<div class="alert alert-warning"><h4>🔄 Rebalancing Required</h4><ul style="margin-left: 20px; margin-top: 10px;">';
+                recommendations.forEach(rec => {
+                    html += `<li style="margin-bottom: 8px;">${rec}</li>`;
+                });
+                html += '</ul></div>';
+                recDiv.innerHTML = html;
+            } else {
+                recDiv.innerHTML = '<div class="alert alert-success"><strong>✅ Portfolio Balanced:</strong> All funds are within target allocation ranges. No rebalancing needed.</div>';
+            }
+        }
+
+        // Render checklists
+        function renderChecklists() {
+            renderChecklistItems('checklistImmediate', checklistItems.immediate);
+            renderChecklistItems('checklistMonth13', checklistItems.month13);
+            renderChecklistItems('checklistOngoing', checklistItems.ongoing);
+            renderChecklistItems('checklistYear12', checklistItems.year12);
+        }
+
+        function renderChecklistItems(containerId, items) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                if (item.completed) {
+                    li.classList.add('completed');
+                }
+                li.innerHTML = `
+                    <input type="checkbox" ${item.completed ? 'checked' : ''} 
+                           onchange="toggleChecklistItem('${containerId}', ${index})" 
+                           style="margin-right: 10px;">
+                    ${typeof item === 'string' ? item : item.text}
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        function toggleChecklistItem(listName, index) {
+            const list = listName.replace('checklist', '').toLowerCase();
+            const actualList = list === 'immediate' ? 'immediate' : 
+                              list === 'month13' ? 'month13' : 
+                              list === 'ongoing' ? 'ongoing' : 'year12';
+            
+            if (typeof checklistItems[actualList][index] === 'string') {
+                checklistItems[actualList][index] = {
+                    text: checklistItems[actualList][index],
+                    completed: true
+                };
+            } else {
+                checklistItems[actualList][index].completed = !checklistItems[actualList][index].completed;
+            }
+            
+            saveData();
+            renderChecklists();
+        }
+
+        // Check alerts
+        function checkAlerts() {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = '';
+            
+            const totalValue = getTotalValue();
+            const totalInvested = funds.reduce((sum, f) => sum + portfolioData[f.name].invested, 0);
+            const targetCorpus = 21203248;
+            const progress = totalValue / targetCorpus * 100;
+            
+            // Progress alerts
+            if (progress >= 100) {
+                container.innerHTML += `
+                    <div class="alert alert-success">
+                        <strong>🎉 Goal Achieved!</strong> You've reached your target corpus of ₹2.12 Cr. Consider activating SWP or reallocating funds.
+                    </div>
+                `;
+            } else if (progress >= 75) {
+                container.innerHTML += `
+                    <div class="alert alert-info">
+                        <strong>📊 Great Progress!</strong> You've achieved ${progress.toFixed(1)}% of your goal. Consider starting de-risking strategy.
+                    </div>
+                `;
+            }
+            
+            // Rebalancing alerts
+            funds.forEach(fund => {
+                const data = portfolioData[fund.name];
+                const currentAlloc = totalValue > 0 ? (data.currentValue / totalValue * 100) : 0;
+                const deviation = Math.abs(currentAlloc - fund.targetAlloc);
+                
+                if (deviation > 7) {
+                    container.innerHTML += `
+                        <div class="alert alert-warning">
+                            <strong>⚠️ Rebalancing Alert:</strong> ${fund.name} has deviated ${deviation.toFixed(1)}% from target. Review rebalancing tab.
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Export functions
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            
+            // Portfolio sheet
+            const portfolioData = [];
+            portfolioData.push(['Fund Name', 'Category', 'Monthly SIP', 'Target %', 'Current Units', 'Current NAV', 'Invested', 'Current Value', 'Returns', 'Returns %']);
+            
+            funds.forEach(fund => {
+                const data = window.portfolioData[fund.name];
+                const returns = data.currentValue - data.invested;
+                const returnsPercent = data.invested > 0 ? (returns / data.invested * 100) : 0;
+                
+                portfolioData.push([
+                    fund.name,
+                    fund.category,
+                    fund.monthlySIP,
+                    fund.targetAlloc,
+                    data.units,
+                    data.currentNAV,
+                    data.invested,
+                    data.currentValue,
+                    returns,
+                    returnsPercent
+                ]);
+            });
+            
+            const ws1 = XLSX.utils.aoa_to_sheet(portfolioData);
+            XLSX.utils.book_append_sheet(wb, ws1, 'Portfolio');
+            
+            // Transactions sheet
+            const txnData = [];
+            txnData.push(['Date', 'Type', 'Fund', 'Amount', 'NAV', 'Units']);
+            
+            transactions.forEach(txn => {
+                txnData.push([txn.date, txn.type, txn.fund, txn.amount, txn.nav, txn.units]);
+            });
+            
+            const ws2 = XLSX.utils.aoa_to_sheet(txnData);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Transactions');
+            
+            // Fund details sheet
+            const fundData = [];
+            fundData.push(['Fund Name', 'Category', 'Monthly SIP', 'Target Allocation %', 'Expected CAGR %']);
+            
+            funds.forEach(fund => {
+                fundData.push([fund.name, fund.category, fund.monthlySIP, fund.targetAlloc, fund.expectedCAGR]);
+            });
+            
+            const ws3 = XLSX.utils.aoa_to_sheet(fundData);
+            XLSX.utils.book_append_sheet(wb, ws3, 'Fund Details');
+            
+            // Download
+            XLSX.writeFile(wb, 'SIP_Investment_Dashboard.xlsx');
+        }
+
+        function exportPortfolio() {
+            const wb = XLSX.utils.book_new();
+            
+            const portfolioData = [];
+            portfolioData.push(['Fund Name', 'Category', 'Current Units', 'Current NAV', 'Invested', 'Current Value', 'Returns']);
+            
+            funds.forEach(fund => {
+                const data = window.portfolioData[fund.name];
+                const returns = data.currentValue - data.invested;
+                
+                portfolioData.push([
+                    fund.name,
+                    fund.category,
+                    data.units,
+                    data.currentNAV,
+                    data.invested,
+                    data.currentValue,
+                    returns
+                ]);
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(portfolioData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Portfolio');
+            
+            XLSX.writeFile(wb, 'Portfolio_Export.xlsx');
+        }
+
+        function exportTransactions() {
+            const wb = XLSX.utils.book_new();
+            
+            const txnData = [];
+            txnData.push(['Date', 'Type', 'Fund', 'Amount', 'NAV', 'Units']);
+            
+            transactions.forEach(txn => {
+                txnData.push([txn.date, txn.type, txn.fund, txn.amount, txn.nav, txn.units]);
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(txnData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+            
+            XLSX.writeFile(wb, 'Transactions_Export.xlsx');
+        }
+
+        function backupData() {
+            const data = {
+                portfolio: portfolioData,
+                transactions: transactions,
+                checklist: checklistItems,
+                funds: funds,
+                backupDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `SIP_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        function restoreData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.portfolio) portfolioData = data.portfolio;
+                    if (data.transactions) transactions = data.transactions;
+                    if (data.checklist) checklistItems = data.checklist;
+                    
+                    saveData();
+                    calculatePortfolio();
+                    renderChecklists();
+                    
+                    alert('Data restored successfully!');
+                } catch (error) {
+                    alert('Error restoring data: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            if (amount >= 10000000) {
+                return '₹' + (amount / 10000000).toFixed(2) + ' Cr';
+            } else if (amount >= 100000) {
+                return '₹' + (amount / 100000).toFixed(2) + ' L';
+            } else {
+                return '₹' + amount.toLocaleString('en-IN');
+            }
+        }
+
+        function getTotalValue() {
+            return funds.reduce((sum, fund) => sum + portfolioData[fund.name].currentValue, 0);
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            loadData();
+            calculatePortfolio();
+            calculateProjections();
+            renderPortfolioInputs();
+        };
+    </script>
+</body>
+</html>
